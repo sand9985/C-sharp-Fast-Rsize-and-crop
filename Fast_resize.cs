@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 public class Fast_resize
 {
     public Fast_resize():this(false)  {}
-    public Fast_resize(bool source_inverse)
+    public Fast_resize(bool source_order)
     {
-        this.Source_inverse = source_inverse;
+        this.Source_inverse = source_order;
     }
     private int r_offset = 2, g_offfset = 1, b_offfset = 1;
 
@@ -39,25 +39,27 @@ public class Fast_resize
     {
 
   
-        Image<Rgb, float> new_mat = new Image<Rgb, float>(w, h);
-        byte* data = (byte*)originImage.DataPointer;
-        int stride = originImage.Width;
-        int orign_x = roi.X;
-        int orign_y = roi.Y;
-        float scale_x = roi.Width / (float)w;
-        float scale_y = roi.Height / (float)h;
-        int max_len = originImage.Width * originImage.Height * 3;
+            Image<Rgb, float> new_mat = new Image<Rgb, float>(w, h);
+            byte* data = (byte*)originImage.DataPointer;
+            int stride = originImage.Width;
+            int orign_x = roi.X;
+            int orign_y = roi.Y;
+            float scale_x = roi.Width / (float)w;
+            float scale_y = roi.Height / (float)h;
+            int max_len = originImage.Width * originImage.Height * 3;
 
      
             Parallel.For(0, h, i =>
             {
                 int x, y;
                 int pos;
+                
                 y = (int)(i * scale_y) + orign_y;
+                y = y * stride * 3;
                 for (int j = 0; j < w; j++)
                 {
                     x = (int)(j * scale_x) + orign_x;
-                    pos = (int)(y * stride + x) * 3;
+                    pos = (int)(y + 3*x) ;
                     if (pos < 0 || pos >= max_len) continue;
                     new_mat.Data[i, j, 0] = data[pos + r_offset];
                     new_mat.Data[i, j, 1] = data[pos + g_offfset];
